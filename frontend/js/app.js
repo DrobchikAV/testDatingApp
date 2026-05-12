@@ -197,18 +197,34 @@ function logout() {
 // INITIALIZATION
 // ============================================
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('[APP] Initializing...');
+//document.addEventListener('DOMContentLoaded', () => {
+//    console.log('[APP] Initializing...');
+//
+//    const user = loadCurrentUser();
+//    if (user) {
+//        console.log('[APP] User found, showing feed');
+//        showPage('feed');
+//    } else {
+//        console.log('[APP] No user found, showing home');
+//        showPage('home');
+//    }
+//
+//    setupEventListeners();
+//    console.log('[APP] Ready!');
+//});
 
+document.addEventListener('DOMContentLoaded', async () => {
+    setupEventListeners();
+
+    // First try Telegram auto-login
+    const loggedIn = await initTelegramAuth();
+    if (loggedIn) return; // already redirected to feed
+
+    // Fallback to localStorage / home page
     const user = loadCurrentUser();
     if (user) {
-        console.log('[APP] User found, showing feed');
-        showPage('feed');
+        showPage("feed");
     } else {
-        console.log('[APP] No user found, showing home');
-        showPage('home');
+        showPage("home");
     }
-
-    setupEventListeners();
-    console.log('[APP] Ready!');
 });
