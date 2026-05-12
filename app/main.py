@@ -2,9 +2,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 import logging
 import sys
-from fastapi.staticfiles import StaticFiles
 import os
 
 # Configure logging
@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 # Import routes
 try:
     from app.routes import auth, profile, feed, swipe, test
-
     logger.info("✅ Routes imported successfully")
 except Exception as e:
     logger.error(f"❌ Failed to import routes: {e}")
@@ -26,17 +25,14 @@ except Exception as e:
 
 # ============ LIFESPAN HANDLER ============
 @asynccontextmanager
-async def lifespan(app: FastAPI):   # @app.on_event("startup") is too old, haha
+async def lifespan(app: FastAPI):
     logger.info("=" * 50)
     logger.info("🚀 Dating App MVP Starting...")
     logger.info("📚 API Docs: http://localhost:8000/docs")
     logger.info("💚 Health: http://localhost:8000/health")
     logger.info("=" * 50)
-
-    yield  # The application runs here
-
-
-    logger.info("🛑 Dating App MVP Shutting down...")    # Shutdown logic
+    yield
+    logger.info("🛑 Dating App MVP Shutting down...")
 
 
 # Create FastAPI app with lifespan
@@ -47,10 +43,10 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
-    lifespan=lifespan  # <-- use the lifespan context manager
+    lifespan=lifespan
 )
 
-# CORS middleware (unchanged)
+# CORS middleware (allow all for MVP)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -60,33 +56,10 @@ app.add_middleware(
 )
 
 
-# ============ ROOT ROUTES (unchanged) ============
-@app.get("/", tags=["info"])
-async def root():
-    return {
-        "app": "Dating App MVP",
-        "version": "0.1.0",
-        "description": "Telegram Mini App for dating",
-        "endpoints": {
-            "auth": "/api/auth/register",
-            "profile": "/api/profile/{user_id}",
-            "feed": "/api/feed/next-candidate",
-            "swipe": "/api/swipe/like",
-            "matches": "/api/matches/my-matches",
-            "test": "/api/test/questions"
-        },
-        "documentation": {
-            "swagger": "/docs",
-            "redoc": "/redoc",
-            "openapi": "/openapi.json"
-        }
-    }
-
-
+# ============ ROOT ROUTES (non‑conflicting) ============
 @app.get("/health", tags=["info"])
 async def health_check():
     return {"status": "ok", "service": "Dating App MVP", "version": "0.1.0"}
-
 
 @app.get("/info", tags=["info"])
 async def info():
@@ -107,7 +80,7 @@ async def info():
     }
 
 
-# ============ INCLUDE ROUTERS (unchanged) ============
+# ============ INCLUDE ROUTERS ============
 app.include_router(auth.router, prefix="/api")
 app.include_router(profile.router, prefix="/api")
 app.include_router(feed.router, prefix="/api")
@@ -116,28 +89,35 @@ app.include_router(test.router, prefix="/api")
 
 logger.info("✅ All routers registered")
 
-# Serve frontend static files (CSS, JS, HTML)
+# ============ SERVE FRONTEND STATIC FILES ============
+# This must come AFTER all API routes so that /api/* is not intercepted
 frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend")
 if os.path.exists(frontend_path):
     app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+    logger.info(f"✅ Serving frontend from {frontend_path}")
+else:
+    logger.warning(f"⚠️ Frontend directory not found at {frontend_path}")
 
-# ============ ERROR HANDLERS (unchanged) ============
+
+# ============ ERROR HANDLERS ============
 @app.exception_handler(404)
 async def not_found_handler(request, exc):
+    # If the request path starts with /api, return JSON error
+    if request.url.path.startswith("/api"):
+        return JSONResponse(
+            status_code=404,
+            content={
+                "error": "Not found",
+                "path": request.url.path,
+                "message": "API endpoint does not exist. Check /docs for available endpoints"
+            }
+        )
+    # Otherwise, let the static frontend handle client-side routing
+    # (or just return a simple HTML message)
     return JSONResponse(
         status_code=404,
-        content={
-            "error": "Not found",
-            "path": request.url.path,
-            "message": "Endpoint does not exist. Check /docs for available endpoints",
-            "available_endpoints": {
-                "GET /": "API info",
-                "GET /health": "Health check",
-                "GET /docs": "API documentation"
-            }
-        }
+        content={"error": "Not found", "message": "The requested resource does not exist."}
     )
-
 
 @app.exception_handler(500)
 async def internal_error_handler(request, exc):
@@ -148,10 +128,9 @@ async def internal_error_handler(request, exc):
     )
 
 
-# ============ MAIN (unchanged) ============
+# ============ MAIN (for local development) ============
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
