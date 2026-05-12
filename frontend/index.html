@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dating App MVP</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="navbar-container">
+                <div class="navbar-brand">
+                    <h1>💕 Dating App</h1>
+                </div>
+                <ul class="navbar-menu" id="navMenu">
+                    <li><a href="#" data-page="home">Home</a></li>
+                    <li><a href="#" data-page="feed">Feed</a></li>
+                    <li><a href="#" data-page="likes">Likes</a></li>
+                    <li><a href="#" data-page="matches">Matches</a></li>
+                    <li><a href="#" data-page="profile">Profile</a></li>
+                    <li><a href="#" data-page="logout" class="logout-btn">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Home Page -->
+            <section id="home-page" class="page active">
+                <div class="home-hero">
+                    <h2>Welcome to Dating App MVP</h2>
+                    <p>Find your perfect match based on personality and interests</p>
+                    <div class="home-buttons">
+                        <button class="btn btn-primary" id="loginBtn">Login</button>
+                        <button class="btn btn-secondary" id="registerBtn">Register</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Auth Page (Login/Register) -->
+            <section id="auth-page" class="page">
+    <div class="auth-container">
+        <div class="auth-form" id="multiStepForm">
+            <!-- Step 1: Basic Info (existing fields) -->
+            <div id="step1" class="form-step active">
+                <h2>Info</h2>
+                <form id="basicInfoForm">
+                    <div id="registerFields">
+                        <!-- all existing fields -->
+                        <div class="form-group">
+                            <label>Telegram ID</label>
+                            <input type="number" id="telegramId" placeholder="Enter your Telegram ID" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="username" placeholder="Enter username" required>
+                        </div>
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" id="firstName" placeholder="First Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" id="lastName" placeholder="Last Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input type="date" id="dateOfBirth" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select id="gender" required>
+                                <option value="">Select Gender</option>
+                                <option value="m">Male</option>
+                                <option value="f">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Country</label>
+                            <input type="text" id="country" placeholder="Country" required>
+                        </div>
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" id="city" placeholder="City" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Latitude</label>
+                            <input type="number" id="latitude" placeholder="Latitude" step="0.0001" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Longitude</label>
+                            <input type="number" id="longitude" placeholder="Longitude" step="0.0001" required>
+                        </div>
+                        <button type="button" class="btn btn-link" id="useCurrentLocation">📍 Use Current Location</button>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" id="step1Submit">Next →</button>
+                </form>
+            </div>
+
+            <!-- Step 2: Interest Tags -->
+            <div id="step2" class="form-step">
+                <h2>Your Interests (max 5)</h2>
+                <div id="tagsSelection" class="tags-checkbox-list"></div>
+                <button type="button" class="btn btn-primary" id="step2Next">Next →</button>
+            </div>
+
+            <!-- Step 3: Upload Photos -->
+            <div id="step3" class="form-step">
+                <h2>Photos (max 3)</h2>
+                <div class="form-group">
+                    <input type="file" id="regPhotoUpload" accept="image/*" multiple>
+                    <div id="regPhotoPreview" class="photos-grid" style="margin-top: 15px;"></div>
+                </div>
+                <button type="button" class="btn btn-primary" id="step3Next">Next →</button>
+            </div>
+
+            <!-- Step 4: Confirmation -->
+            <div id="step4" class="form-step">
+                <h2>Almost done!</h2>
+                <p>You can now take the personality test to get better matches.</p>
+                <button type="button" class="btn btn-success" id="step4Finish">Take Personality Test →</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+            <!-- Profile Page -->
+            <section id="profile-page" class="page">
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <h2>My Profile</h2>
+                        <button class="btn btn-secondary btn-sm" id="editProfileBtn">Edit Profile</button>
+                    </div>
+
+                    <div id="profileView" class="profile-view">
+                        <div class="profile-info">
+                            <p><strong>Username:</strong> <span id="profileUsername"></span></p>
+                            <p><strong>Name:</strong> <span id="profileName"></span></p>
+                            <p><strong>Age:</strong> <span id="profileAge"></span></p>
+                            <p><strong>Gender:</strong> <span id="profileGender"></span></p>
+                            <p><strong>Location:</strong> <span id="profileLocation"></span></p>
+                            <p><strong>Bio:</strong> <span id="profileBio"></span></p>
+                        </div>
+
+                        <div class="profile-tags">
+                            <h3>Interest Tags</h3>
+                            <div id="profileTags" class="tags-list"></div>
+                        </div>
+
+                        <div class="profile-photos">
+                            <h3>Photos</h3>
+                            <div id="profilePhotos" class="photos-grid"></div>
+                        </div>
+
+                        <div class="profile-test">
+                            <h3>Personality Test Results</h3>
+                            <div id="testResults" class="test-results-grid"></div>
+                            <button class="btn btn-secondary" id="retakeTestBtn">Retake Test</button>
+                        </div>
+                    </div>
+
+                    <div id="profileEdit" class="profile-edit" style="display: none;">
+                        <form id="profileEditForm">
+                            <div class="form-group">
+                                <label>Bio</label>
+                                <textarea id="editBio" placeholder="Tell us about yourself"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Interest Tags (select up to 5)</label>
+                                <div id="tagsList" class="tags-checkbox-list"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Upload Photos</label>
+                                <input type="file" id="photoUpload" accept="image/*" multiple>
+                                <div id="uploadProgress" class="progress"></div>
+                            </div>
+
+                            <div class="form-buttons">
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <button type="button" class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Personality Test Page -->
+            <section id="test-page" class="page">
+                <div class="test-container">
+                    <div class="test-header">
+                        <h2>Personality Test</h2>
+                        <div class="test-progress">
+                            <div id="testProgressBar" class="progress-bar"></div>
+                        </div>
+                        <p id="testCounter">Question <span id="currentQuestion">1</span> of 15</p>
+                    </div>
+
+                    <div class="test-content">
+                        <div id="testQuestion" class="test-question">
+                            <h3 id="questionText"></h3>
+                            <div id="answersContainer" class="answers-radio"></div>
+                        </div>
+
+                        <div class="test-navigation">
+                            <button class="btn btn-secondary" id="prevQuestionBtn" disabled>← Previous</button>
+                            <button class="btn btn-primary" id="nextQuestionBtn">Next →</button>
+                            <button class="btn btn-success" id="submitTestBtn" style="display: none;">Submit Test</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Feed Page -->
+<section id="feed-page" class="page">
+    <div class="feed-container">
+        <div class="feed-header">
+            <h2>Discover People</h2>
+            <button class="btn btn-secondary btn-sm" id="filterBtn">🔍 Filters</button>
+        </div>
+
+        <div id="filterPanel" class="filter-panel" style="display: none;">
+            <div class="form-group">
+                <label>Age Range</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="ageMin" placeholder="Min" min="18" max="100">
+                    <input type="number" id="ageMax" placeholder="Max" min="18" max="100">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Gender</label>
+                <select id="filterGender">
+                    <option value="">All</option>
+                    <option value="m">Male</option>
+                    <option value="f">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Distance (km)</label>
+                <input type="number" id="filterRadius" value="50" min="1" max="500">
+            </div>
+            <button class="btn btn-primary btn-block" id="applyFiltersBtn">Apply</button>
+        </div>
+
+        <div class="candidate-card" id="candidateCard">
+    <!-- Photo (background) -->
+    <div class="card-photos">
+        <img id="candidatePhoto" src="" alt="Candidate photo">
+        <div class="card-photo-counter">
+            <span id="photoCounter">0 / 0</span>
+        </div>
+    </div>
+
+    <!-- Info Overlay -->
+    <div class="card-content">
+        <div class="card-info">
+            <h3 id="candidateName">Loading...</h3>
+            <p id="candidateAge"></p>
+            <p id="candidateLocation"></p>
+            <div class="card-tags" id="candidateTags"></div>
+        </div>
+
+        <!-- Buttons Overlay -->
+        <div class="card-actions">
+            <button id="dislikeBtn">✗ Pass</button>
+            <button id="likeBtn">♥ Like</button>
+        </div>
+    </div>
+</div>
+
+        <div id="noMoreCandidates" class="no-candidates" style="display: none;">
+            <p>🎉 No more candidates available</p>
+            <p style="color: #999; margin-bottom: 20px;">Try changing your filters</p>
+            <button class="btn btn-primary" id="refreshFeedBtn">Refresh Feed</button>
+        </div>
+    </div>
+</section>
+
+            <!-- Likes Page -->
+            <section id="likes-page" class="page">
+                <div class="likes-container">
+                    <h2>People Who Liked You</h2>
+                    <div id="likesList" class="candidates-grid"></div>
+                    <div id="noLikes" class="empty-state" style="display: none;">
+                        <p>No one has liked you yet. Keep swiping! 💕</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Matches Page -->
+            <section id="matches-page" class="page">
+                <div class="matches-container">
+                    <h2>Your Matches</h2>
+                    <div id="matchesList" class="candidates-grid"></div>
+                    <div id="noMatches" class="empty-state" style="display: none;">
+                        <p>You don't have any matches yet. Find someone you like! 💑</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toastNotification" class="toast"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/test.js"></script>
+    <script src="js/feed.js"></script>
+    <script src="js/swipe.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
